@@ -1,0 +1,29 @@
+#k12_lms .k12_lms-paginate{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: end;
+}
+#k12_lms .k12_lms-paginate nav div:first-child{
+    display: none !important;
+}
+#k12_lms .k12_lms-paginate svg{
+    width: 25px;
+}
+#k12_lms .k12_lms-paginate nav a
+{
+    padding: 10px 15px !important;
+}
+#k12_lms .k12_lms-paginate nav span.relative
+{
+    background-color: #854fff !important;
+    color: white;
+    margin-right: -4px;
+}
+#sessionHistoryModal .modal-content {
+    width: auto !important;
+    max-height: 90vh;
+}
+#sessionHistoryModal .modal-body {
+    overflow: auto;
+}
