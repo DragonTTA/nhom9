@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('login');
-});
+})->name('login.view');
 Route::get('/register-view', function () {
     return view('register');
 })->name('register.view');
@@ -38,9 +38,8 @@ Route::get('/assign-admin/{userId}', function ($userId) {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');}
-    )->name('dashboard');
+    Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
+
     Route::middleware(['checkRole:admin'])->prefix('admin')->group(function () {
         // Role
         Route::get('roles', [\App\Http\Controllers\Admin\RolePermissionController::class, 'listRoles']);
@@ -65,13 +64,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
         Route::post('/{id}/assign-role', [\App\Http\Controllers\Admin\UserController::class, 'assignRole'])->name('users.assignRole');
     });
-    Route::middleware(['check.permission'])->group(function () {
-        Route::prefix('teacher')->group(function (){
+//    Route::middleware(['checkRole:admin|teacher'])->prefix('admin')->group(function () {
+//    });
+    Route::get('/documents', [\App\Http\Controllers\DocumentController::class, 'index'])->name('documents.index');
 
-        });
-        Route::prefix('student')->group(function (){
+// Thêm công văn mới
+    Route::post('/documents', [\App\Http\Controllers\DocumentController::class, 'store'])->name('documents.store');
 
-        });
-    });
+// Xóa công văn
+    Route::delete('/documents/{id}', [\App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
 
+// Xem file đính kèm (PDF/ảnh)
+    Route::get('/documents/file/{filename}', [\App\Http\Controllers\DocumentController::class, 'viewFile'])->name('documents.viewFile');
 });

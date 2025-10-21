@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -59,16 +60,18 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:6'],
+            'role_id' => 'required'
         ]);
-
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'status' => 0,
-
         ]);
-        Auth::login($user);
-        return route('dashboard');
+        $user->assignRole(Role::find($request->role_id)->name);
+//        Auth::login($user);
+        toast('Hãy liên hệ với quản trị viên để duyệt Account!', 'success');
+        return redirect('/');
+        //        return route('dashboard');
     }
 }

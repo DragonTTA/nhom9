@@ -177,6 +177,17 @@
                         @enderror
 
                         <div class="mb-3">
+                            <label for="role_id" class="form-label">Role</label>
+                            <select class="form-control" name="role_id">
+                                <option value="3">Học sinh</option>
+{{--                                <option value="student">Văn thư</option>--}}
+                                <option value="2">Giáo viên</option>
+                            </select>
+                        </div>
+                        @error('email')
+                        <div style="color:red;">{{ $message }}</div>
+                        @enderror
+                        <div class="mb-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms" />
                                 <label class="form-check-label" for="terms-conditions">
@@ -190,7 +201,7 @@
 
                     <p class="text-center">
                         <span>Already have an account?</span>
-                        <a href="auth-login-basic.html">
+                        <a href="{{route('login.view')}}">
                             <span>Sign in instead</span>
                         </a>
                     </p>
@@ -202,15 +213,6 @@
 </div>
 
 <!-- / Content -->
-
-<div class="buy-now">
-    <a
-        href="https://themeselection.com/products/sneat-bootstrap-html-admin-template/"
-        target="_blank"
-        class="btn btn-danger btn-buy-now"
-    >Upgrade to Pro</a
-    >
-</div>
 
 <!-- Core JS -->
 <!-- build:js assets/vendor/js/core.js -->

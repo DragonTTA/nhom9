@@ -72,7 +72,9 @@ class BaseRepository implements BaseRepositoryInterface
                     if ($field == 'end_time_updated_at') {
                         $query = $query->where('updated_at', '<=', ConvertTimeHelper::formatDateTime($value));
                     } else {
-                        $query = $query->where($field, $value);
+                        if (!empty($value)) {
+                            $query = $query->where($field, $value);
+                        }
                     }
                 }
             }

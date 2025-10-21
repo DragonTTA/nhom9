@@ -4,14 +4,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function index()
+    protected $userService;
+    public function __construct(UserService $userService){
+        $this->userService = $userService;
+    }
+    public function index(Request $request)
     {
-        $users = User::with('roles')->get();
+        $params = $request->all();
+        if(!empty($params['status']) && $params['status'] == "-1"){
+            unset($params['status']);
+        }
+        $users = $this->userService->getListByFilter($params,['roles']);
         $roles = Role::pluck('name', 'id');
         return view('admin.users', compact('users', 'roles'));
     }
@@ -28,10 +37,12 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'status' => 0,
             'password' => bcrypt($request->password)
         ]);
 
         $user->assignRole(Role::find($request->role_id)->name);
+        toast('Create User Success!', 'success');
 
         return response()->json(['status' => true, 'message' => 'User created successfully!']);
     }

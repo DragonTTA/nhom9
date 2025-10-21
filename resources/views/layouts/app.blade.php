@@ -83,6 +83,8 @@
         </div>
     </div>
 </div>
+@yield('scripts')
+
 <div class="layout-overlay layout-menu-toggle"></div>
 <script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/popper/popper.js')}}"></script>

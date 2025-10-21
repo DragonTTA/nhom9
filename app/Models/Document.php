@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Document extends Model
+{
+    protected $fillable = ['name', 'title', 'type', 'user_id'];
+
+    public function files()
+    {
+        return $this->hasMany(DocumentFile::class, 'document_id');
+    }
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'user_id','id');
+    }
+}
+
