@@ -108,6 +108,48 @@
     @if (session('toast'))
         toastr["{{ session('toast')['type'] }}"]("{{ session('toast')['message'] }}");
     @endif
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Lấy phần tử dropdown toggle
+        const dropdownToggle = document.querySelector('[data-bs-toggle="dropdown"]');
+
+        if (dropdownToggle) {
+            // Khởi tạo đối tượng dropdown
+            const dropdown = new bootstrap.Dropdown(dropdownToggle);
+
+            // Lắng nghe sự kiện click để mở / đóng
+            dropdownToggle.addEventListener("click", function (e) {
+                e.preventDefault();
+                dropdown.toggle(); // Mở hoặc đóng dropdown
+            });
+        } else {
+            console.error("Không tìm thấy phần tử có data-bs-toggle='dropdown'");
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const logoutBtn = document.getElementById("btnLogout");
+        const logoutForm = document.getElementById("logoutForm");
+
+        logoutBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+        title: 'Xác nhận đăng xuất?',
+        text: "Bạn có chắc chắn muốn thoát khỏi hệ thống không?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Đăng xuất',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+        logoutForm.submit();
+    }
+    });
+    });
+    });
 </script>
 
 </body>

@@ -64,16 +64,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
         Route::post('/{id}/assign-role', [\App\Http\Controllers\Admin\UserController::class, 'assignRole'])->name('users.assignRole');
     });
-//    Route::middleware(['checkRole:admin|teacher'])->prefix('admin')->group(function () {
-//    });
+    Route::middleware(['checkRole:admin|teacher'])->prefix('admin')->group(function () {
+        Route::post('/documents', [\App\Http\Controllers\DocumentController::class, 'store'])->name('documents.store');
+        Route::resource('documents', \App\Http\Controllers\DocumentController::class);
+        Route::get('/documents/{id}/edit', [\App\Http\Controllers\DocumentController::class, 'edit'])->name('documents.edit');
+        Route::put('/documents/{id}', [\App\Http\Controllers\DocumentController::class, 'update'])->name('documents.update');
+    });
     Route::get('/documents', [\App\Http\Controllers\DocumentController::class, 'index'])->name('documents.index');
-
-// Thêm công văn mới
-    Route::post('/documents', [\App\Http\Controllers\DocumentController::class, 'store'])->name('documents.store');
-
-// Xóa công văn
-    Route::delete('/documents/{id}', [\App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
-
-// Xem file đính kèm (PDF/ảnh)
     Route::get('/documents/file/{filename}', [\App\Http\Controllers\DocumentController::class, 'viewFile'])->name('documents.viewFile');
 });

@@ -3,30 +3,31 @@
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
-            <h5 class="card-header d-flex justify-content-between align-items-center">
-                Quản lý Công Văn
-                <button class="btn btn-primary btn-sm" type="button" onclick="openCreateModal()">Thêm Công Văn</button>
-            </h5>
-
-            <div class="table-responsive">
-                <table class="table table-bordered mt-3" id="documentsTable">
+            <h5 class="card-header">User Management</h5>
+            @include('documents.filter')
+            <div class="table table-responsive text-nowrap">
+                <table class="table table-bordered">
                     <thead class="table-light">
                     <tr>
                         <th>ID</th>
+                        <th>Tên công văn</th>
                         <th>Tiêu đề</th>
                         <th>Người tạo</th>
                         <th>Type</th>
                         <th>Files</th>
-                        <th>Actions</th>
+                        @if(auth()->user()->hasRole('admin|teacher'))
+                            <th>Actions</th>
+                        @endif
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($documents as $doc)
                         <tr id="docRow{{ $doc->id }}">
                             <td>{{ $doc->id }}</td>
+                            <td>{{ $doc->name }}</td>
                             <td>{{ $doc->title }}</td>
                             <td>{{ $doc->users->name ?? $doc->user_id }}</td>
-                            <td>{{ $doc->type }}</td>
+                            <td>{{ (!empty($doc->type) && $doc->type == 1 ) ? "Giáo viên" : (( $doc->type == 2)  ?"Học sinh" : "" )}}</td>
                             <td>
                                 @foreach($doc->files as $file)
                                     @php
@@ -38,15 +39,21 @@
                                             {{ $file->name }}
                                         </button>
                                     @else
-                                        <a href="{{ $url }}" class="btn btn-secondary btn-sm mb-1" download="{{ $file->name }}">
+                                        <a href="{{ $url }}" class="btn btn-secondary btn-sm mb-1"
+                                           download="{{ $file->name }}">
                                             {{ $file->name }}
                                         </a>
                                     @endif
                                 @endforeach
                             </td>
-                            <td>
-                                <button class="btn btn-danger btn-sm deleteDocBtn" data-id="{{ $doc->id }}">Xóa</button>
-                            </td>
+                            @if(auth()->user()->hasRole('admin|teacher'))
+                                <td>
+                                    <button class="btn btn-warning btn-sm editDocBtn" data-id="{{ $doc->id }}">Sửa
+                                    </button>
+                                    <button class="btn btn-danger btn-sm deleteDocBtn" data-id="{{ $doc->id }}">Xóa
+                                    </button>
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                     </tbody>
@@ -76,11 +83,15 @@
                         </div>
                         <div class="mb-3">
                             <label>Type</label>
-                            <input type="text" name="type" class="form-control">
+                            <select name="type" class="form-control">
+                                <option value="2">Học Sinh</option>
+                                <option value="1">Giáo viên</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label>Files (PDF, DOC, DOCX, XLS, XLSX, JPG, PNG)</label>
-                            <input type="file" name="files[]" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" multiple class="form-control" required>
+                            <input type="file" name="files[]" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                                   multiple class="form-control" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -114,47 +125,59 @@
 
     <script>
         const uploadUrl = "{{ route('documents.store') }}";
-        const deleteDocUrlTemplate = "/documents/ID_PLACEHOLDER";
+        const updateUrlTemplate = "admin/documents/ID_PLACEHOLDER";
+        const deleteDocUrlTemplate = "admin/documents/ID_PLACEHOLDER";
         const csrfToken = "{{ csrf_token() }}";
 
-        // Mở modal tạo công văn
-        function openCreateModal(){
-            $('#documentForm')[0].reset();
-            $('#documentModal').modal('show');
-        }
-
-        // Xem file PDF/Ảnh
-        function viewFile(url, name){
+        function viewFile(url, name) {
             $('#viewFileTitle').text(name);
             $('#fileFrame').attr('src', url);
             $('#viewFileModal').modal('show');
         }
 
-        // Upload công văn + files
-        $('#documentForm').submit(function(e){
+        $('#documentForm').submit(function (e) {
             e.preventDefault();
             let formData = new FormData(this);
+            const id = $(this).attr('data-id'); // có id => đang sửa
+
+            let ajaxUrl = uploadUrl;
+            let ajaxMethod = 'POST';
+
+            if (id) {
+                ajaxUrl = updateUrlTemplate.replace('ID_PLACEHOLDER', id);
+                ajaxMethod = 'POST';
+                formData.append('_method', 'PUT');
+            }
 
             $.ajax({
-                url: uploadUrl,
-                type: 'POST',
+                url: ajaxUrl,
+                type: ajaxMethod,
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function(res){
-                    if(res.status === 'success'){
-                        location.reload(); // Reload để cập nhật table
-                    } else {
-                        alert(res.message || 'Upload thất bại!');
-                    }
+                success: function (res) {
+                    location.reload();
                 },
-                error: function(){ alert('Lỗi server!'); }
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    alert('Lỗi server: ' + xhr.status + ' - ' + xhr.statusText);
+                }
+
             });
         });
 
+        function openCreateModal() {
+            $('#documentForm')[0].reset();
+            $('#documentForm').removeAttr('data-id');
+            $('[name="files[]"]').attr('required', true);
+            $('#modalTitle').text('Thêm Công Văn');
+            $('#documentModal').modal('show');
+        }
+
+
         // Xóa công văn
-        $(document).on('click', '.deleteDocBtn', function(){
-            if(!confirm('Bạn có chắc muốn xóa?')) return;
+        $(document).on('click', '.deleteDocBtn', function () {
+            if (!confirm('Bạn có chắc muốn xóa?')) return;
             const id = $(this).data('id');
             const deleteUrl = deleteDocUrlTemplate.replace('ID_PLACEHOLDER', id);
 
@@ -162,15 +185,38 @@
                 url: deleteUrl,
                 type: 'DELETE',
                 data: {_token: csrfToken},
-                success: function(res){
-                    if(res.status === 'success'){
-                        location.reload();
-                    } else {
-                        alert(res.message || 'Xóa thất bại!');
-                    }
+                success: function (res) {
+                    location.reload();
                 },
-                error: function(){ alert('Lỗi server!'); }
+                error: function () {
+                    alert('Lỗi server!');
+                }
             });
         });
+
+        $(document).on('click', '.editDocBtn', function () {
+            const id = $(this).data('id');
+            const editUrl = `/admin/documents/${id}/edit`;
+
+            $.get(editUrl, function (res) {
+                if (res.status === 'success') {
+                    $('#modalTitle').text('Sửa Công Văn');
+                    $('[name="name"]').val(res.data.name);
+                    $('[name="title"]').val(res.data.title);
+                    $('[name="type"]').val(res.data.type);
+
+                    $('[name="files[]"]').removeAttr('required');
+
+                    $('#documentForm').attr('data-id', id);
+
+                    $('#documentModal').modal('show');
+                } else {
+                    alert(res.message || 'Không thể tải dữ liệu công văn!');
+                }
+            }).fail(function () {
+                alert('Lỗi server khi tải dữ liệu!');
+            });
+        });
+
     </script>
 @endsection

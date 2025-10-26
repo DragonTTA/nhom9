@@ -41,9 +41,9 @@ abstract class BaseService
         return $this->repository->delete($id);
     }
 
-    public function getListByFilter($params, $relationships = [])
+    public function getListByFilter($params, $relationships = [],$paramsRelation=[])
     {
-        return $this->repository->getListByFilter($params,$relationships);
+        return $this->repository->getListByFilter($params,$relationships,$paramsRelation);
     }
     public function getByFilter($params, $relationships = [])
     {

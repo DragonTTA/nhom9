@@ -2,9 +2,9 @@
     <div class="row mt-2 mb-4 mx-4">
         <div class="form-wrap col-2">
             <select class="form-control" name="status">
-                <option value="-1">Chọn trạng thái</option>
-                <option {{( 1 == request()->get('status')) ? 'selected' : '' }} value="1">ACTIVE</option>
-                <option {{( 0 == request()->get('status')) ? 'selected' : '' }} value="0">INACTIVE</option>
+                <option value="-1" selected>Chọn trạng thái</option>
+                <option {{( "1" === request()->get('status')) ? 'selected' : '' }} value="1">ACTIVE</option>
+                <option {{( "0" === request()->get('status')) ? 'selected' : '' }} value="0">INACTIVE</option>
             </select>
         </div>
         <div class="form-wrap col-3">

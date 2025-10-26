@@ -83,7 +83,7 @@
                     <div data-i18n="Layouts">Quản lí Account</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('admin/users') ? 'active open' : '' }}" >
+                    <li class="menu-item {{ request()->is('admin/users') ? 'active open' : '' }}">
                         <a href="{{route('users.index')}}" class="menu-link">
                             <div data-i18n="Without menu">Danh sách Account</div>
                         </a>
@@ -91,20 +91,44 @@
                 </ul>
             </li>
         @endif
-        <li class="menu-item {{ request()->is('device_infos*') ? 'active open' : '' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-layout"></i>
-                <div data-i18n="Layouts">Quản lí Văn Thư</div>
-            </a>
-        </li>
-        @if(auth()->user()->hasRole('admin'))
-            <li class="menu-item {{ request()->is('device_infos*') ? 'active open' : '' }}">
+        @if(auth()->user()->hasRole('student'))
+            <li class="menu-item {{ request()->is('documents*') ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons bx bx-layout"></i>
-                    <div data-i18n="Layouts">Quản lí Quyền</div>
+                    <div data-i18n="Layouts">Công Văn</div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('documents*') ? 'active open' : '' }}">
+                        <a href="{{route('documents.index')}}" class="menu-link">
+                            <div data-i18n="Without menu">Danh sách Công Văn</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @else
+            <li class="menu-item {{ request()->is('documents*') ? 'active open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-layout"></i>
+                    <div data-i18n="Layouts">Quản lí Công Văn</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('documents*') ? 'active open' : '' }}">
+                        <a href="{{route('documents.index')}}" class="menu-link">
+                            <div data-i18n="Without menu">Danh sách Công Văn</div>
+                        </a>
+                    </li>
+                </ul>
             </li>
         @endif
+
+        {{--        @if(auth()->user()->hasRole('admin'))--}}
+        {{--            <li class="menu-item {{ request()->is('device_infos*') ? 'active open' : '' }}">--}}
+        {{--                <a href="javascript:void(0);" class="menu-link menu-toggle">--}}
+        {{--                    <i class="menu-icon tf-icons bx bx-layout"></i>--}}
+        {{--                    <div data-i18n="Layouts">Quản lí Quyền</div>--}}
+        {{--                </a>--}}
+        {{--            </li>--}}
+        {{--        @endif--}}
 
     </ul>
 </aside>

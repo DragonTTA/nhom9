@@ -52,50 +52,64 @@ class BaseRepository implements BaseRepositoryInterface
         return $model ? $model->delete() : false;
     }
 
-    public function getListByFilter($params, $relationships = [])
+    public function getListByFilter($params, $relationships = [], $relationFilters = [])
     {
         $query = $this->model->newQuery();
         foreach ($params as $field => $value) {
+            if ($field === 'order_by') {
+                foreach ($value as $keyOrderBy => $valueOrderBy) {
+                    $query->orderBy($keyOrderBy, $valueOrderBy);
+                }
+                continue;
+            }
+
             if (!in_array($field, self::FIELD_CONFIG)) {
                 if (is_array($value)) {
-                    $query = $query->whereIn($field, $value);
+                    $query->whereIn($field, $value);
                 } else {
-                    if ($field == 'start_time_created_at') {
-                        $query = $query->where('created_at', '>=', ConvertTimeHelper::formatDateTime($value));
+                    switch ($field) {
+                        case 'start_time_created_at':
+                            $query->where('created_at', '>=', ConvertTimeHelper::formatDateTime($value));
+                            break;
+                        case 'end_time_created_at':
+                            $query->where('created_at', '<=', ConvertTimeHelper::formatDateTime($value));
+                            break;
+                        case 'start_time_updated_at':
+                            $query->where('updated_at', '>=', ConvertTimeHelper::formatDateTime($value));
+                            break;
+                        case 'end_time_updated_at':
+                            $query->where('updated_at', '<=', ConvertTimeHelper::formatDateTime($value));
+                            break;
+                        default:
+                            if (isset($value)) {
+                                $query->where($field, $value);
+                            }
+                            break;
                     }
-                    if ($field == 'end_time_created_at') {
-                        $query = $query->where('created_at', '<=', ConvertTimeHelper::formatDateTime($value));
-                    }
-                    if ($field == 'start_time_updated_at') {
-                        $query = $query->where('updated_at', '>=', ConvertTimeHelper::formatDateTime($value));
-                    }
-                    if ($field == 'end_time_updated_at') {
-                        $query = $query->where('updated_at', '<=', ConvertTimeHelper::formatDateTime($value));
+                }
+            }
+        }
+        foreach ($relationFilters as $relation => $filters) {
+            $query->whereHas($relation, function ($q) use ($filters) {
+                foreach ($filters as $field => $value) {
+                    if (is_array($value)) {
+                        $q->whereIn($field, $value);
                     } else {
-                        if (!empty($value)) {
-                            $query = $query->where($field, $value);
-                        }
+                        $q->where($field, 'like', "%{$value}%");
                     }
                 }
-            }
-            if ($field == 'order_by') {
-                foreach ($value as $keyOrderBy => $valueOrderBy) {
-                    $query = $query->orderBy($keyOrderBy, $valueOrderBy);
-                }
-            }
+            });
         }
         if (!empty($relationships)) {
-            foreach ($relationships as $relationship) {
-                $query = $query->with($relationship);
-            }
+            $query->with($relationships);
         }
         if (!empty($params['limit'])) {
-            $query = $query->paginate($params['limit']);
-        } else {
-            $query = $query->get();
+            return $query->paginate($params['limit']);
         }
-        return $query;
+
+        return $query->get();
     }
+
 
     public function updateListByFilter($params, $paramUpdate)
     {

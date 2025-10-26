@@ -113,7 +113,7 @@
                             <select name="role_id" id="role_id" class="form-select" required>
                                 <option value="">-- Select Role --</option>
                                 @foreach($roles as $id => $role)
-                                    <option value="{{ $id }}">{{ $role }}</option>
+                                    <option value="{{ $id }}">{{ ($role == "teacher") ? "Văn thư" : "Học sinh" }}</option>
                                 @endforeach
                             </select>
                         </div>

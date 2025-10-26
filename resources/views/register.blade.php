@@ -181,7 +181,7 @@
                             <select class="form-control" name="role_id">
                                 <option value="3">Học sinh</option>
 {{--                                <option value="student">Văn thư</option>--}}
-                                <option value="2">Giáo viên</option>
+                                <option value="2">Văn thư</option>
                             </select>
                         </div>
                         @error('email')

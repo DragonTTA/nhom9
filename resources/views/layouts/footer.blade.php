@@ -6,8 +6,8 @@
                 document.write(new Date().getFullYear());
             </script>
 
-            <a href="https://manage.joystar.vn" target="_blank"
-               class="footer-link fw-bolder">Joystar</a>
+            <a href="/" target="_blank"
+               class="footer-link fw-bolder">actvn</a>
         </div>
 {{--        <div>--}}
 {{--            <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>--}}

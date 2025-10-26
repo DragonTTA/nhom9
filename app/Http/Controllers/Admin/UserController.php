@@ -22,6 +22,7 @@ class UserController extends Controller
         }
         $users = $this->userService->getListByFilter($params,['roles']);
         $roles = Role::pluck('name', 'id');
+        unset($roles[1]);
         return view('admin.users', compact('users', 'roles'));
     }
 
