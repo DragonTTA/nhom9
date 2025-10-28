@@ -15,8 +15,8 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $max = config('auth.login.max_attempts', 5);
-        $lock = config('auth.login.lock_minutes', 30);
+        $maxAttempts = config('auth.login.max_attempts', 5);
+        $lockMinutes = config('auth.login.lock_minutes', 30);
 
         try {
             $credentials = $request->validate([
@@ -63,9 +63,9 @@ class AuthController extends Controller
 
             $user->increment('login_attempts');
 
-            if ($user->login_attempts >= 5) {
+            if ($user->login_attempts >= $maxAttempts) {
                 $user->update([
-                    'locked_until' => now()->addMinutes(30),
+                    'locked_until' => now()->addMinutes($lockMinutes),
                 ]);
                 toast("Tài khoản bị khóa 30 phút vì nhập sai quá nhiều lần!", 'error');
             } else {
