@@ -18,6 +18,8 @@ class User extends Authenticatable
         'password',
         'status',
         'approved_at',
+        'max_attempts',
+        'locked_until'
     ];
     protected $hidden = [
         'password',

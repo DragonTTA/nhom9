@@ -3,49 +3,85 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
+
     public function login(Request $request)
     {
+        $max = config('auth.login.max_attempts', 5);
+        $lock = config('auth.login.lock_minutes', 30);
+
         try {
             $credentials = $request->validate([
                 'email_username' => ['required'],
                 'password' => ['required'],
             ]);
+            $user = \App\Models\User::where('email', $credentials['email_username'])
+                ->first();
 
-            $auth = [
-                'email' => $credentials['email_username'],
-                'password' => $credentials['password'],
-            ];
+            if (!$user) {
+                toast("Tài khoản không tồn tại.", 'error');
+                return back();
+            }
+            if ($user->locked_until && now()->lessThan($user->locked_until)) {
+                $diff = now()->diff($user->locked_until);
+                $minutes = $diff->i;
+                $seconds = $diff->s;
+                $remaining = '';
+                if ($minutes > 0) {
+                    $remaining .= $minutes . ' phút ';
+                }
+                if ($seconds > 0) {
+                    $remaining .= $seconds . ' giây';
+                }
+                toast("Tài khoản bị khóa. Vui lòng thử lại sau $remaining.", 'error');
+                return back();
+            }
+
+            $auth = ['email' => $user->email, 'password' => $credentials['password']];
             if (Auth::attempt($auth)) {
-                if(Auth::user()->status != 1){
+                $user->update([
+                    'login_attempts' => 0,
+                    'locked_until' => null,
+                ]);
+                if ($user->status != 1) {
                     Auth::logout();
                     toast("Tài khoản của bạn đang bị khóa hoặc chưa được kích hoạt!", 'warning');
                     return redirect()->route('login.view');
                 }
-                $request->session()->regenerate();
 
+                $request->session()->regenerate();
                 return redirect()->route('dashboard');
             }
 
-            // Nếu sai thông tin
+            $user->increment('login_attempts');
+
+            if ($user->login_attempts >= 5) {
+                $user->update([
+                    'locked_until' => now()->addMinutes(30),
+                ]);
+                toast("Tài khoản bị khóa 30 phút vì nhập sai quá nhiều lần!", 'error');
+            } else {
+                $remaining = 5 - $user->login_attempts;
+                toast("Sai mật khẩu! Còn {$remaining} lần thử.", 'error');
+            }
             return back()->withErrors([
                 'email_username' => 'Email hoặc mật khẩu không chính xác.',
             ])->onlyInput('email_username');
 
         } catch (\Exception $exception) {
-            \Log::error('Login error: '.$exception->getMessage());
-            return back()->withErrors([
-                'email_username' => 'Đã xảy ra lỗi, vui lòng thử lại.',
-            ])->onlyInput('email_username');
+            Log::error('Login error: '.$exception->getMessage());
+            toast("Đã xảy ra lỗi hệ thống, vui lòng thử lại.", 'error');
+            return back();
         }
     }
-
     public function logout(Request $request)
     {
         Auth::logout();

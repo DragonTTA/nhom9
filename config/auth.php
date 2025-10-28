@@ -111,5 +111,10 @@ return [
     */
 
     'password_timeout' => 10800,
+    'login' => [
+        'max_attempts' => 5,
+        'lock_minutes' => 30,
+    ],
+
 
 ];
