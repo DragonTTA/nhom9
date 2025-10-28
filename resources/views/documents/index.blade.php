@@ -5,9 +5,11 @@
         <div class="card">
             <h5 class="card-header d-flex justify-content-between align-items-center">
                 <span>Document Management</span>
-                <button class="btn btn-sm btn-outline-secondary" id="btnSettings" type="button">
-                    <i class="bx bx-cog me-1"></i> Settings Config Files
-                </button>
+                @if(auth()->user()->hasRole('admin'))
+                    <button class="btn btn-sm btn-outline-secondary" id="btnSettings" type="button">
+                        <i class="bx bx-cog me-1"></i> Settings Config Files
+                    </button>
+                @endif
             </h5>
             @include('documents.filter')
             <div class="table table-responsive text-nowrap">
@@ -139,7 +141,8 @@
                                    class="form-control" min="1" max="500" required>
                         </div>
                         <div class="mb-3">
-                            <label for="allowed_types" class="form-label">Loại file cho phép (phân cách bằng dấu phẩy)</label>
+                            <label for="allowed_types" class="form-label">Loại file cho phép (phân cách bằng dấu
+                                phẩy)</label>
                             <input type="text" name="allowed_types" id="allowed_types" class="form-control" required>
                         </div>
                     </div>
@@ -249,11 +252,12 @@
             });
         });
 
+        @if(auth()->user()->hasRole('admin|document'))
         const getSettingUrl = "{{ route('upload.settings.get') }}";
         const updateSettingUrl = "{{ route('upload.settings.update') }}";
 
-        $('button:contains("Settings Config Files")').on('click', function() {
-            $.get(getSettingUrl, function(res) {
+        $('button:contains("Settings Config Files")').on('click', function () {
+            $.get(getSettingUrl, function (res) {
                 if (res.status === 'success') {
                     $('#max_file_size_mb').val(res.data.max_file_size_mb);
                     $('#allowed_types').val(res.data.allowed_types);
@@ -262,23 +266,24 @@
             });
         });
 
-        $('#uploadSettingForm').on('submit', function(e) {
+        $('#uploadSettingForm').on('submit', function (e) {
             e.preventDefault();
             $.ajax({
                 url: updateSettingUrl,
                 type: 'POST',
                 data: $(this).serialize(),
-                success: function(res) {
+                success: function (res) {
                     if (res.status === 'success') {
                         Swal.fire('Thành công', res.message, 'success');
                         $('#uploadSettingModal').modal('hide');
                     }
                 },
-                error: function(err) {
+                error: function (err) {
                     Swal.fire('Lỗi', 'Không thể cập nhật cấu hình!', 'error');
                     console.error(err.responseText);
                 }
             });
         });
+        @endif
     </script>
 @endsection
