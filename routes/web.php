@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
+Route::get('/login', function () {
     return view('login');
 })->name('login.view');
 Route::get('/register-view', function () {
@@ -38,7 +38,9 @@ Route::get('/assign-admin/{userId}', function ($userId) {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
+    Route::get('/', function () {
+        return view('dashboard');}
+    )->name('dashboard');
 
     Route::middleware(['checkRole:admin'])->prefix('admin')->group(function () {
         // Role
@@ -63,8 +65,11 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/users/{id}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
         Route::post('/{id}/assign-role', [\App\Http\Controllers\Admin\UserController::class, 'assignRole'])->name('users.assignRole');
+
+        Route::get('/upload-settings', [\App\Http\Controllers\Admin\UploadSettingController::class, 'getSettings'])->name('upload.settings.get');
+        Route::post('/upload-settings', [\App\Http\Controllers\Admin\UploadSettingController::class, 'updateSettings'])->name('upload.settings.update');
     });
-    Route::middleware(['checkRole:admin|teacher'])->prefix('admin')->group(function () {
+    Route::middleware(['checkRole:admin|document'])->prefix('admin')->group(function () {
         Route::post('/documents', [\App\Http\Controllers\DocumentController::class, 'store'])->name('documents.store');
         Route::resource('documents', \App\Http\Controllers\DocumentController::class);
         Route::get('/documents/{id}/edit', [\App\Http\Controllers\DocumentController::class, 'edit'])->name('documents.edit');

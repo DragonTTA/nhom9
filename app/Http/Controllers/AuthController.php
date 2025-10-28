@@ -13,19 +13,21 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            // Validate input
             $credentials = $request->validate([
                 'email_username' => ['required'],
                 'password' => ['required'],
             ]);
 
-            // Chuẩn hóa dữ liệu cho Auth
             $auth = [
-                'email' => $credentials['email_username'], // nếu login bằng email
+                'email' => $credentials['email_username'],
                 'password' => $credentials['password'],
             ];
-            // Thử đăng nhập
             if (Auth::attempt($auth)) {
+                if(Auth::user()->status != 1){
+                    Auth::logout();
+                    toast("Tài khoản của bạn đang bị khóa hoặc chưa được kích hoạt!", 'warning');
+                    return redirect()->route('login.view');
+                }
                 $request->session()->regenerate();
 
                 return redirect()->route('dashboard');
@@ -37,7 +39,6 @@ class AuthController extends Controller
             ])->onlyInput('email_username');
 
         } catch (\Exception $exception) {
-            // Nếu muốn, bạn có thể log lỗi
             \Log::error('Login error: '.$exception->getMessage());
             return back()->withErrors([
                 'email_username' => 'Đã xảy ra lỗi, vui lòng thử lại.',

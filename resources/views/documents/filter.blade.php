@@ -1,6 +1,6 @@
 <form action="{{ route('documents.index') }}">
     <div class="row mt-2 mb-4 mx-4">
-        @if(auth()->user()->hasRole('admin|teacher'))
+        @if(auth()->user()->hasRole('admin|document'))
         <div class="form-wrap col-3">
             <select class="form-control" name="type">
                 <option value="-1" {{( null === request()->get('type')) ? 'selected' : '' }}>Chọn role</option>
@@ -25,7 +25,7 @@
                     <em class="icon ni ni-search"></em><span>Search</span>
                 </button>
             </div>
-            @if(auth()->user()->hasRole('admin|teacher'))
+            @if(auth()->user()->hasRole('admin|document'))
             <div class="btn-wrap col-2">
                 <button class="btn btn-round btn-success" type="button" onclick="openCreateModal()">Thêm Công Văn</button>
             </div>

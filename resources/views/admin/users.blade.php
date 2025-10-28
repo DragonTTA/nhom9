@@ -6,7 +6,7 @@
             @include('admin.filter')
             <div class="table text-nowrap">
                 <table class="table table-bordered">
-                <thead class="table-light">
+                    <thead class="table-light">
                     <tr>
                         <th>STT</th>
                         <th>Name</th>
@@ -52,7 +52,19 @@
                                     </div>
                                 </label>
                             </td>
-                            <td>{{ $user->roles->pluck('name')->implode(', ') ?: '-' }}</td>
+                                <?php
+                                $role = $user->roles->pluck('name')->toArray()[0];
+                                if ($role == 'document') {
+                                    $roleDisplay = 'Văn thư';
+                                } elseif ($role == 'student') {
+                                    $roleDisplay = 'Học sinh';
+                                } elseif ($role == 'teacher') {
+                                    $roleDisplay = 'Giáo viên';
+                                } else {
+                                    $roleDisplay = $role;
+                                }
+                                ?>
+                            <td>{{ $roleDisplay}}</td>
                             <td>
                                 <div class="dropdown">
                                     <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
@@ -61,11 +73,11 @@
                                     </button>
                                     <div class="dropdown-menu">
                                         {{-- Truyền user sang JS qua JSON --}}
-                                        <a class="dropdown-item" href="javascript:void(0)"
+                                        <a class="dropdown-item"
                                            onclick='openEditModal(@json($user))'>
                                             <i class="icon-base bx bx-edit-alt me-1"></i> Edit
                                         </a>
-                                        <a class="dropdown-item" href="javascript:void(0)"
+                                        <a class="dropdown-item"
                                            onclick="deleteUser({{ $user->id }})">
                                             <i class="icon-base bx bx-trash me-1"></i> Delete
                                         </a>
@@ -113,7 +125,8 @@
                             <select name="role_id" id="role_id" class="form-select" required>
                                 <option value="">-- Select Role --</option>
                                 @foreach($roles as $id => $role)
-                                    <option value="{{ $id }}">{{ ($role == "teacher") ? "Văn thư" : "Học sinh" }}</option>
+                                    <option
+                                        value="{{ $id }}">{{ ($role == "document") ? "Văn thư" :(( $role == "student") ? "Học sinh" : "Giáo viên")}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -127,6 +140,8 @@
             </div>
         </div>
     </div>
+@endsection
+@section('scripts')
 
     <script>
         let actionType = 'create';
@@ -141,6 +156,7 @@
         }
 
         function openEditModal(user) {
+            console.log(132)
             actionType = 'edit';
             $('#modalTitle').text('Edit User');
             $('#user_id').val(user.id);

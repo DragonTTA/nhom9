@@ -52,8 +52,6 @@
                         </a>
                     </li>
                     <li><div class="dropdown-divider my-1"></div></li>
-                    <li><a class="dropdown-item" href="#"><i class="icon-base bx bx-user icon-md me-3"></i><span>My Profile</span></a></li>
-                    <li><div class="dropdown-divider my-1"></div></li>
                     <li>
                         <a href="#" class="dropdown-item" id="btnLogout">
                             <i class="icon-base bx bx-power-off icon-md me-3"></i>

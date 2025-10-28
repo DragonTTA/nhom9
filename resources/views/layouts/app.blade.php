@@ -43,9 +43,7 @@
         href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
         rel="stylesheet"
     />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{--    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>--}}
 
     {{-- Bootstrap Icons --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -63,6 +61,7 @@
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css')}}"/>
 
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}"/>
+    <script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
     <script src="{{asset('assets/vendor/js/helpers.js')}}"></script>
     <script src="{{asset('assets/js/config.js')}}"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
@@ -86,9 +85,11 @@
 @yield('scripts')
 
 <div class="layout-overlay layout-menu-toggle"></div>
-<script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/popper/popper.js')}}"></script>
-<script src="{{asset('assets/vendor/js/bootstrap.js')}}"></script>
+<script src="{{asset("assets/js/bootstrap.bundle.min.js")}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{--<script src="{{asset('assets/vendor/js/bootstrap.js')}}"></script>--}}
 <script src="{{asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js')}}"></script>
 
 <script src="{{asset('assets/vendor/js/menu.js')}}"></script>
@@ -108,24 +109,6 @@
     @if (session('toast'))
         toastr["{{ session('toast')['type'] }}"]("{{ session('toast')['message'] }}");
     @endif
-
-    document.addEventListener("DOMContentLoaded", function() {
-        // Lấy phần tử dropdown toggle
-        const dropdownToggle = document.querySelector('[data-bs-toggle="dropdown"]');
-
-        if (dropdownToggle) {
-            // Khởi tạo đối tượng dropdown
-            const dropdown = new bootstrap.Dropdown(dropdownToggle);
-
-            // Lắng nghe sự kiện click để mở / đóng
-            dropdownToggle.addEventListener("click", function (e) {
-                e.preventDefault();
-                dropdown.toggle(); // Mở hoặc đóng dropdown
-            });
-        } else {
-            console.error("Không tìm thấy phần tử có data-bs-toggle='dropdown'");
-        }
-    });
 
     document.addEventListener("DOMContentLoaded", function() {
         const logoutBtn = document.getElementById("btnLogout");

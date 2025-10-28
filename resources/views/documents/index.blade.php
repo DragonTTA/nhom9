@@ -3,7 +3,12 @@
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
-            <h5 class="card-header">User Management</h5>
+            <h5 class="card-header d-flex justify-content-between align-items-center">
+                <span>Document Management</span>
+                <button class="btn btn-sm btn-outline-secondary" id="btnSettings" type="button">
+                    <i class="bx bx-cog me-1"></i> Settings Config Files
+                </button>
+            </h5>
             @include('documents.filter')
             <div class="table table-responsive text-nowrap">
                 <table class="table table-bordered">
@@ -15,7 +20,7 @@
                         <th>Người tạo</th>
                         <th>Type</th>
                         <th>Files</th>
-                        @if(auth()->user()->hasRole('admin|teacher'))
+                        @if(auth()->user()->hasRole('admin|document'))
                             <th>Actions</th>
                         @endif
                     </tr>
@@ -46,7 +51,7 @@
                                     @endif
                                 @endforeach
                             </td>
-                            @if(auth()->user()->hasRole('admin|teacher'))
+                            @if(auth()->user()->hasRole('admin|document'))
                                 <td>
                                     <button class="btn btn-warning btn-sm editDocBtn" data-id="{{ $doc->id }}">Sửa
                                     </button>
@@ -117,12 +122,38 @@
             </div>
         </div>
     </div>
+    {{-- Modal cấu hình dung lượng upload --}}
+    <div class="modal fade" id="uploadSettingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="uploadSettingForm">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cấu hình Upload File</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="max_file_size_mb" class="form-label">Dung lượng tối đa (MB)</label>
+                            <input type="number" name="max_file_size_mb" id="max_file_size_mb"
+                                   class="form-control" min="1" max="500" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="allowed_types" class="form-label">Loại file cho phép (phân cách bằng dấu phẩy)</label>
+                            <input type="text" name="allowed_types" id="allowed_types" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu cấu hình</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
         const uploadUrl = "{{ route('documents.store') }}";
         const updateUrlTemplate = "admin/documents/ID_PLACEHOLDER";
@@ -160,7 +191,7 @@
                 },
                 error: function (xhr) {
                     console.error(xhr.responseText);
-                    alert('Lỗi server: ' + xhr.status + ' - ' + xhr.statusText);
+                    location.reload()
                 }
 
             });
@@ -218,5 +249,36 @@
             });
         });
 
+        const getSettingUrl = "{{ route('upload.settings.get') }}";
+        const updateSettingUrl = "{{ route('upload.settings.update') }}";
+
+        $('button:contains("Settings Config Files")').on('click', function() {
+            $.get(getSettingUrl, function(res) {
+                if (res.status === 'success') {
+                    $('#max_file_size_mb').val(res.data.max_file_size_mb);
+                    $('#allowed_types').val(res.data.allowed_types);
+                    $('#uploadSettingModal').modal('show');
+                }
+            });
+        });
+
+        $('#uploadSettingForm').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: updateSettingUrl,
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(res) {
+                    if (res.status === 'success') {
+                        Swal.fire('Thành công', res.message, 'success');
+                        $('#uploadSettingModal').modal('hide');
+                    }
+                },
+                error: function(err) {
+                    Swal.fire('Lỗi', 'Không thể cập nhật cấu hình!', 'error');
+                    console.error(err.responseText);
+                }
+            });
+        });
     </script>
 @endsection
