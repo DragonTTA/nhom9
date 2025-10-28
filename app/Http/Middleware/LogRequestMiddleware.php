@@ -30,7 +30,6 @@ class LogRequestMiddleware
                 'request_data' => $request->except(['password', 'password_confirmation']),
                 'response_data' => json_decode($response->getContent(), true),
             ]);
-            dd($abc);
         } catch (\Exception $e) {
             \Log::error('Failed to write request log: ' . $e->getMessage());
         }
