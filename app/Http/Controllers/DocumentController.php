@@ -29,8 +29,6 @@ class DocumentController extends Controller
         }
         if (auth()->user()->hasRole('student')) {
             $params['type'] = 2; // Chỉ hiện công văn dành cho sinh viên
-        } else if (auth()->user()->hasRole('teacher')) {
-            $params['type'] = 1; // Chỉ hiện công văn dành cho giáo viên
         }
         if (!empty($params['files_name'])) {
             $paramsRelation['files']['name'] = $params['files_name'];
